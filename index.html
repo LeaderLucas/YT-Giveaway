@@ -1,18 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>YT Login System</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Login System</title>
+
+<style>
+body{
+font-family:Arial;
+margin:0;
+background:#111;
+color:white;
+}
+
+.container{
+max-width:400px;
+margin:50px auto;
+background:#1c1c1c;
+padding:20px;
+border-radius:10px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:8px 0;
+border:none;
+border-radius:5px;
+}
+
+button{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:none;
+border-radius:5px;
+background:red;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+.hidden{display:none;}
+
+.nav{
+display:flex;
+justify-content:space-between;
+padding:10px;
+background:#222;
+}
+
+.card{
+background:#2a2a2a;
+padding:15px;
+margin-top:10px;
+border-radius:10px;
+}
+
+table{
+width:100%;
+margin-top:10px;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #444;
+padding:5px;
+text-align:center;
+}
+</style>
 </head>
+
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 <div id="loginPage" class="container">
 <h2>Login / Signup</h2>
-<input id="username" placeholder="Username" />
-<input id="password" type="password" placeholder="Password" />
+
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+
 <button onclick="signup()">Signup</button>
 <button onclick="login()">Login</button>
 </div>
@@ -37,32 +104,232 @@
 <h3>Admin Panel</h3>
 <button onclick="showDatabase()">Database 📦</button>
 <button onclick="makeAdmin()">Make Admin 👑</button>
-<button onclick="addCoins()">Add Coins</button>
-<button onclick="viewUsers()">View Users</button>
+<button onclick="makeOwner()">Make Owner 👑</button>
+<button onclick="addCoins()">Add Coins 💰</button>
+<button onclick="viewUsers()">View Users 📊</button>
+</div>
+
+<button onclick="logout()">Logout 🚪</button>
 
 </div>
-<div id="userTableBox" class="hidden card">
-<h3>Users Database 📊</h3>
+</div>
 
-<table border="1" width="100%" style="color:white; text-align:center;">
+<!-- USER TABLE -->
+<div id="userTableBox" class="hidden container">
+<h3>Database 📊</h3>
+
+<table>
 <thead>
 <tr>
-<th>S.No</th>
-<th>Username</th>
+<th>#</th>
+<th>Name</th>
 <th>Role</th>
 <th>Coins</th>
 </tr>
 </thead>
-
 <tbody id="userTableBody"></tbody>
 </table>
 
-<button onclick="closeTable()">Close ❌</button>
-</div>
-<button onclick="logout()">Logout 🚪</button>
-</div>
+<button onclick="closeTable()">Close</button>
 </div>
 
-<script src="script.js"></script>
+<script>
+let currentUser = null;
+
+let users = JSON.parse(localStorage.getItem("users")) || [];
+
+if(users.length === 0){
+users = [
+{name:"Lucas_Arora", password:"admin123", role:"owner", coins:0}
+];
+save();
+}
+
+function save(){
+localStorage.setItem("users", JSON.stringify(users));
+}
+
+// SIGNUP
+function signup(){
+let u=document.getElementById("username").value;
+let p=document.getElementById("password").value;
+
+if(users.find(x=>x.name===u)){
+alert("User exists");
+return;
+}
+
+users.push({name:u,password:p,role:"subscriber",coins:0});
+save();
+alert("Signup done");
+}
+
+// LOGIN
+function login(){
+let u=document.getElementById("username").value;
+let p=document.getElementById("password").value;
+
+let user = users.find(x=>x.name===u && x.password===p);
+
+if(!user){
+alert("Wrong login");
+return;
+}
+
+currentUser = user;
+localStorage.setItem("currentUser", u);
+showDashboard();
+}
+
+// DASHBOARD
+function showDashboard(){
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("dashboard").classList.remove("hidden");
+
+document.getElementById("userInfo").innerText = currentUser.name;
+document.getElementById("roleInfo").innerText = currentUser.role;
+
+updateUI();
+}
+
+// UPDATE UI
+function updateUI(){
+
+let user = users.find(x=>x.name===currentUser.name);
+
+document.getElementById("coins").innerText = user.coins;
+
+// reset
+document.getElementById("adminPanel").classList.add("hidden");
+
+if(user.role === "owner"){
+document.getElementById("adminPanel").classList.remove("hidden");
+}
+}
+
+// COINS
+function earnMoney(){
+alert("Coming Soon");
+}
+
+// MAKE ADMIN
+function makeAdmin(){
+
+if(currentUser.role !== "owner"){
+alert("Only owner");
+return;
+}
+
+let t = prompt("Username?");
+let user = users.find(x=>x.name===t);
+
+if(user){
+user.role="admin";
+save();
+alert("Made admin");
+}
+}
+
+// ADD COINS
+function addCoins(){
+
+if(currentUser.role !== "owner"){
+alert("Only owner");
+return;
+}
+
+let t = prompt("User?");
+let c = parseInt(prompt("Coins?"));
+
+let user = users.find(x=>x.name===t);
+
+if(user){
+user.coins += c;
+save();
+updateUI();
+}
+}
+
+// VIEW USERS TABLE
+function viewUsers(){
+
+if(currentUser.role !== "owner"){
+alert("Only owner");
+return;
+}
+
+let table = document.getElementById("userTableBody");
+table.innerHTML = "";
+
+users.forEach((u,i)=>{
+table.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${u.name}</td>
+<td>${u.role}</td>
+<td>${u.coins}</td>
+</tr>`;
+});
+
+document.getElementById("userTableBox").classList.remove("hidden");
+}
+
+function closeTable(){
+document.getElementById("userTableBox").classList.add("hidden");
+}
+function showDatabase(){
+
+if(!currentUser || currentUser.role !== "owner"){
+alert("Access Denied ❌ Only owner can view database");
+return;
+}
+
+let table = document.getElementById("userTableBody");
+table.innerHTML = "";
+
+users.forEach((u, i) => {
+table.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${u.name}</td>
+<td>${u.role}</td>
+<td>${u.coins}</td>
+</tr>
+`;
+});
+
+document.getElementById("userTableBox").classList.remove("hidden");
+                                    }
+  function makeOwner(){
+
+if(!currentUser || currentUser.role !== "owner"){
+alert("Access Denied ❌ Only owner can promote owner");
+return;
+}
+
+let target = prompt("Username ko OWNER banana hai?");
+
+let user = users.find(x => x.name === target);
+
+if(!user){
+alert("User not found");
+return;
+}
+
+user.role = "owner";
+save();
+
+alert(target + " is now OWNER 👑");
+  }
+// LOGOUT
+function logout(){
+currentUser=null;
+localStorage.removeItem("currentUser");
+
+document.getElementById("dashboard").classList.add("hidden");
+document.getElementById("loginPage").classList.remove("hidden");
+}
+</script>
+
 </body>
 </html>
