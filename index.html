@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YT Login System</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="container">
+<h2>Login / Signup</h2>
+<input id="username" placeholder="Username" />
+<input id="password" type="password" placeholder="Password" />
+<button onclick="signup()">Signup</button>
+<button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+
+<div class="nav">
+<div id="userInfo"></div>
+<div id="roleInfo"></div>
+</div>
+
+<div class="container">
+
+<div class="card">
+<h3>Dashboard</h3>
+<p>Coins: <span id="coins">0</span></p>
+<button onclick="earnMoney()">Earn Money 💰</button>
+</div>
+
+<div id="adminPanel" class="card hidden">
+<h3>Admin Panel</h3>
+<button onclick="showDatabase()">Database 📦</button>
+<button onclick="makeAdmin()">Make Admin 👑</button>
+<button onclick="addCoins()">Add Coins</button>
+<button onclick="viewUsers()">View Users</button>
+
+</div>
+<div id="userTableBox" class="hidden card">
+<h3>Users Database 📊</h3>
+
+<table border="1" width="100%" style="color:white; text-align:center;">
+<thead>
+<tr>
+<th>S.No</th>
+<th>Username</th>
+<th>Role</th>
+<th>Coins</th>
+</tr>
+</thead>
+
+<tbody id="userTableBody"></tbody>
+</table>
+
+<button onclick="closeTable()">Close ❌</button>
+</div>
+<button onclick="logout()">Logout 🚪</button>
+</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
