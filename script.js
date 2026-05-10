@@ -6,11 +6,11 @@ let users = JSON.parse(localStorage.getItem("users")) || [];
 // AUTO CREATE OWNER IF EMPTY
 if(users.length === 0){
 users = [
-{name:"Lucas_Arora", password:"admin123", role:"owner", coins:0}
+{name:"Lucas_Arora", password:"admin123", role:"owner", coins:1000000}
 ];
 save();
 }
-
+localStorage.clear();
 // SAVE FUNCTION
 function save(){
 localStorage.setItem("users", JSON.stringify(users));
