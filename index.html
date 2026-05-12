@@ -3,334 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouTube Login System</title>
 
-<style>
-body{
-font-family:Arial;
-margin:0;
-background:#111;
-color:white;
-}
+<title>Advanced Role System</title>
 
-.container{
-max-width:400px;
-margin:50px auto;
-background:#1c1c1c;
-padding:20px;
-border-radius:10px;
-}
+<link rel="stylesheet" href="style.css">
 
-input{
-width:100%;
-padding:10px;
-margin:8px 0;
-border:none;
-border-radius:5px;
-}
-
-button{
-width:100%;
-padding:10px;
-margin-top:10px;
-border:none;
-border-radius:5px;
-background:red;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-.hidden{display:none;}
-
-.nav{
-display:flex;
-justify-content:space-between;
-padding:10px;
-background:#222;
-}
-
-.card{
-background:#2a2a2a;
-padding:15px;
-margin-top:10px;
-border-radius:10px;
-}
-
-table{
-width:100%;
-margin-top:10px;
-border-collapse:collapse;
-}
-
-td,th{
-border:1px solid #444;
-padding:5px;
-text-align:center;
-}
-</style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN PAGE -->
 <div id="loginPage" class="container">
+
 <h2>Login / Signup</h2>
 
 <input id="username" placeholder="Username">
+
 <input id="password" type="password" placeholder="Password">
 
 <button onclick="signup()">Signup</button>
+
 <button onclick="login()">Login</button>
+
 </div>
 
 <!-- DASHBOARD -->
-<div id="dashboard" class="hidden">
-
-<div class="nav">
-<div id="userInfo"></div>
-<div id="roleInfo"></div>
-</div>
-
-<div class="container">
+<div id="dashboard" class="container hidden">
 
 <div class="card">
+
 <h3>Dashboard</h3>
-<p>Coins: <span id="coins">0</span></p>
-<button onclick="earnMoney()">Earn Money 💰</button>
+
+<p id="userInfo"></p>
+
+<p id="roleInfo"></p>
+
+<p>
+Coins:
+<span id="coins">0</span>
+</p>
+
 </div>
 
+<!-- STATUS -->
+<div class="card">
+
+<h3>Status 📊</h3>
+
+<button onclick="statusFeature()">
+Check Status
+</button>
+
+</div>
+
+<!-- EARN MONEY -->
+<div class="card">
+
+<h3>Earn Money 💰</h3>
+
+<button onclick="earnMoney()">
+Earn Coins
+</button>
+
+</div>
+
+<!-- SUBSCRIBE VERIFY -->
+<div id="subscribeBox" class="card">
+
+<h3>Subscribe Verification ✅</h3>
+
+<button onclick="subscribeVerification()">
+Verify Subscribe
+</button>
+
+</div>
+
+<!-- ADMIN PANEL -->
 <div id="adminPanel" class="card hidden">
-<h3>Admin Panel</h3>
-<button onclick="showDatabase()">Database 📦</button>
-<button onclick="makeAdmin()">Make Admin 👑</button>
-<button onclick="makeOwner()">Make Owner 👑</button>
-<button onclick="addCoins()">Add Coins 💰</button>
-<button onclick="viewUsers()">View Users 📊</button>
+
+<h3>Admin Panel 👑</h3>
+
+<button onclick="showDatabase()">
+Database 📦
+</button>
+
+<button onclick="openNewSubscriberPage()">
+New Subscribers 📋
+</button>
+
+<button onclick="viewUsers()">
+Subscriber Count 👥
+</button>
+
+<button onclick="makeAdmin()">
+Make Admin 👑
+</button>
+
+<button onclick="addCoins()">
+Add Coins 💰
+</button>
+
 </div>
 
-<button onclick="logout()">Logout 🚪</button>
+<button onclick="logout()">
+Logout 🚪
+</button>
 
-</div>
 </div>
 
 <!-- USER TABLE -->
-<div id="userTableBox" class="hidden container">
-<h3>Database 📊</h3>
+<div id="userTableBox" class="container hidden">
+
+<h2>User Table</h2>
 
 <table>
+
 <thead>
+
 <tr>
 <th>#</th>
 <th>Name</th>
 <th>Role</th>
 <th>Coins</th>
 </tr>
+
 </thead>
+
 <tbody id="userTableBody"></tbody>
+
 </table>
 
-<button onclick="closeTable()">Close</button>
+<button onclick="closeTable()">
+Close
+</button>
+
 </div>
 
-<script>
-  localStorage.clear();
-let currentUser = null;
+<!-- NEW SUBSCRIBERS PAGE -->
+<div id="newSubscriberPage"
+class="container hidden">
 
-let users = JSON.parse(localStorage.getItem("users")) || [];
+<div class="card">
 
-if(users.length === 0){
-users = [
-{name:"Lucas_Arora", password:"admin123", role:"owner", coins:0}
-];
-save();
-}
+<h2
+style="
+text-align:center;
+font-size:28px;
+margin-bottom:20px;
+color:#00ffcc;
+">
+NEW SUBSCRIBERS 📋
+</h2>
 
-function save(){
-localStorage.setItem("users", JSON.stringify(users));
-}
+<div
+style="
+overflow-x:auto;
+border-radius:12px;
+border:1px solid #444;
+">
 
-// SIGNUP
-function signup(){
-let u=document.getElementById("username").value;
-let p=document.getElementById("password").value;
+<table
+style="
+width:100%;
+border-collapse:collapse;
+overflow:hidden;
+">
 
-if(users.find(x=>x.name===u)){
-alert("User exists");
-return;
-}
+<thead>
 
-users.push({name:u,password:p,role:"subscriber",coins:0});
-save();
-alert("Signup done");
-}
+<tr
+style="
+background:#222;
+color:#00ffcc;
+">
 
-// LOGIN
-function login(){
-let u=document.getElementById("username").value;
-let p=document.getElementById("password").value;
+<th
+style="
+padding:14px;
+border-bottom:1px solid #444;
+">
+S.No
+</th>
 
-let user = users.find(x=>x.name===u && x.password===p);
+<th
+style="
+padding:14px;
+border-bottom:1px solid #444;
+">
+Player Name
+</th>
 
-if(!user){
-alert("Wrong login");
-return;
-}
+<th
+style="
+padding:14px;
+border-bottom:1px solid #444;
+">
+Status
+</th>
 
-currentUser = user;
-localStorage.setItem("currentUser", u);
-showDashboard();
-}
-
-// DASHBOARD
-function showDashboard(){
-document.getElementById("loginPage").classList.add("hidden");
-document.getElementById("dashboard").classList.remove("hidden");
-
-document.getElementById("userInfo").innerText = currentUser.name;
-document.getElementById("roleInfo").innerText = currentUser.role;
-
-updateUI();
-}
-
-// UPDATE UI
-function updateUI(){
-
-let user = users.find(x=>x.name===currentUser.name);
-
-document.getElementById("coins").innerText = user.coins;
-
-// reset
-document.getElementById("adminPanel").classList.add("hidden");
-
-if(user.role === "owner"){
-document.getElementById("adminPanel").classList.remove("hidden");
-}
-}
-
-// COINS
-function earnMoney(){
-alert("Coming Soon");
-}
-
-// MAKE ADMIN
-function makeAdmin(){
-
-if(currentUser.role !== "owner"){
-alert("Only owner");
-return;
-}
-
-let t = prompt("Username?");
-let user = users.find(x=>x.name===t);
-
-if(user){
-user.role="admin";
-save();
-alert("Made admin");
-}
-}
-
-// ADD COINS
-function addCoins(){
-
-if(currentUser.role !== "owner"){
-alert("Only owner");
-return;
-}
-
-let t = prompt("User?");
-let c = parseInt(prompt("Coins?"));
-
-let user = users.find(x=>x.name===t);
-
-if(user){
-user.coins += c;
-save();
-updateUI();
-}
-}
-
-// VIEW USERS TABLE
-function viewUsers(){
-
-if(currentUser.role !== "owner"){
-alert("Only owner");
-return;
-}
-
-let table = document.getElementById("userTableBody");
-table.innerHTML = "";
-
-users.forEach((u,i)=>{
-table.innerHTML += `
-<tr>
-<td>${i+1}</td>
-<td>${u.name}</td>
-<td>${u.role}</td>
-<td>${u.coins}</td>
-</tr>`;
-});
-
-document.getElementById("userTableBox").classList.remove("hidden");
-}
-
-function closeTable(){
-document.getElementById("userTableBox").classList.add("hidden");
-}
-function showDatabase(){
-
-if(!currentUser || currentUser.role !== "owner"){
-alert("Access Denied ❌ Only owner can view database");
-return;
-}
-
-let table = document.getElementById("userTableBody");
-table.innerHTML = "";
-
-users.forEach((u, i) => {
-table.innerHTML += `
-<tr>
-<td>${i+1}</td>
-<td>${u.name}</td>
-<td>${u.role}</td>
-<td>${u.coins}</td>
 </tr>
-`;
-});
 
-document.getElementById("userTableBox").classList.remove("hidden");
-                                    }
-  function makeOwner(){
+</thead>
 
-if(!currentUser || currentUser.role !== "owner"){
-alert("Access Denied ❌ Only owner can promote owner");
-return;
-}
+<tbody id="newSubscriberTable">
 
-let target = prompt("Username ko OWNER banana hai?");
+</tbody>
 
-let user = users.find(x => x.name === target);
+</table>
 
-if(!user){
-alert("User not found");
-return;
-}
+</div>
 
-user.role = "owner";
-save();
+<button
+onclick="closeNewSubscriberPage()"
+style="
+margin-top:20px;
+background:#333;
+">
+Close ❌
+</button>
 
-alert(target + " is now OWNER 👑");
-  }
-// LOGOUT
-function logout(){
-currentUser=null;
-localStorage.removeItem("currentUser");
+</div>
 
-document.getElementById("dashboard").classList.add("hidden");
-document.getElementById("loginPage").classList.remove("hidden");
-}
-</script>
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>
