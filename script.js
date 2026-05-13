@@ -1,11 +1,22 @@
 let currentUser = null;
 
-// SAFE LOAD USERS
-let users = JSON.parse(
-localStorage.getItem("users")
+// USERS
+let users = JSON.parse(localStorage.getItem("users")) || [];
+
+// VIDEOS
+let videos = JSON.parse(localStorage.getItem("videos")) || [];
+
+// SUB REQUESTS
+let subscribeRequests = JSON.parse(
+localStorage.getItem("subscribeRequests")
 ) || [];
 
-// AUTO CREATE OWNERS
+// WITHDRAW REQUESTS
+let withdrawRequests = JSON.parse(
+localStorage.getItem("withdrawRequests")
+) || [];
+
+// AUTO OWNER
 if(users.length === 0){
 
 users = [
@@ -15,13 +26,6 @@ name:"Lucas_Arora",
 password:"admin123",
 role:"owner",
 coins:0
-},
-
-{
-name:"Robert",
-password:"admin1234",
-role:"owner",
-coins:10
 }
 
 ];
@@ -67,7 +71,7 @@ coins:0
 
 save();
 
-alert("Signup done");
+alert("Signup successful ✅");
 
 }
 
@@ -89,7 +93,7 @@ x.password===p
 
 if(!user){
 
-alert("Wrong login");
+alert("Wrong login ❌");
 return;
 
 }
@@ -108,8 +112,7 @@ showDashboard();
 // SHOW DASHBOARD
 function showDashboard(){
 
-document.getElementById("loginPage")
-.classList.add("hidden");
+hideAllPages();
 
 document.getElementById("dashboard")
 .classList.remove("hidden");
@@ -136,148 +139,77 @@ x => x.name===currentUser.name
 document.getElementById("coins")
 .innerText = user.coins;
 
-// RESET
+// ADMIN PANEL
 document.getElementById("adminPanel")
 .classList.add("hidden");
 
-// OWNER ONLY
-if(user.role==="owner"){
+if(
+user.role==="owner" ||
+user.role==="admin"
+){
 
 document.getElementById("adminPanel")
 .classList.remove("hidden");
 
 }
 
-}
+// SUBSCRIBE BUTTON HIDE
+let approvedUsers = JSON.parse(
+localStorage.getItem("subApproved")
+) || [];
 
-// ADD COINS
-function addCoins(){
+if(
+approvedUsers.includes(user.name)
+){
 
-if(currentUser.role!=="owner"){
+document.getElementById("subscribeBox")
+.style.display = "none";
 
-alert("Only owner");
-return;
+}else{
 
-}
-
-let target =
-prompt("Username?");
-
-let amount =
-parseInt(prompt("Coins?"));
-
-let user = users.find(
-x => x.name===target
-);
-
-if(user){
-
-user.coins += amount;
-
-save();
-
-updateUI();
-
-alert("Coins Added ✅");
+document.getElementById("subscribeBox")
+.style.display = "block";
 
 }
 
 }
 
-// VIEW USERS
-function viewUsers(){
+// HIDE ALL
+function hideAllPages(){
 
-if(currentUser.role!=="owner"){
+document.getElementById("loginPage")
+.classList.add("hidden");
 
-alert("Only owner");
-return;
+document.getElementById("dashboard")
+.classList.add("hidden");
 
-}
+document.getElementById("earnPage")
+.classList.add("hidden");
 
-let table =
-document.getElementById("userTableBody");
+document.getElementById("subscribePage")
+.classList.add("hidden");
 
-table.innerHTML = "";
+document.getElementById("membersPage")
+.classList.add("hidden");
 
-users.forEach((u,i)=>{
+document.getElementById("newSubscriberPage")
+.classList.add("hidden");
 
-table.innerHTML += `
+document.getElementById("withdrawPage")
+.classList.add("hidden");
 
-<tr>
-
-<td>${i+1}</td>
-<td>${u.name}</td>
-<td>${u.role}</td>
-<td>${u.coins}</td>
-
-</tr>
-
-`;
-
-});
-
-document.getElementById("userTableBox")
-.classList.remove("hidden");
-
-}
-
-// CLOSE TABLE
-function closeTable(){
-
-document.getElementById("userTableBox")
+document.getElementById("withdrawRequestPage")
 .classList.add("hidden");
 
 }
 
-// MAKE ADMIN
-function makeAdmin(){
+// BACK
+function backDashboard(){
 
-if(currentUser.role!=="owner"){
-
-alert("Only owner");
-return;
+showDashboard();
 
 }
 
-let target =
-prompt("Username?");
-
-let user = users.find(
-x => x.name===target
-);
-
-if(!user){
-
-alert("User not found");
-return;
-
-}
-
-user.role = "admin";
-
-save();
-
-alert(
-target + " is now ADMIN 👑"
-);
-
-}
-
-// DATABASE
-function showDatabase(){
-
-if(currentUser.role!=="owner"){
-
-alert("Only owner");
-return;
-
-}
-
-alert(
-JSON.stringify(users,null,2)
-);
-
-}
 // STATUS
 function statusFeature(){
 
@@ -290,7 +222,9 @@ localStorage.getItem(
 let text = "";
 
 history.forEach(h=>{
+
 text += "• " + h + "\n";
+
 });
 
 if(text===""){
@@ -301,7 +235,7 @@ alert(
 
 "📊 STATUS 📊\n\n" +
 
-"User: " + currentUser.name + "\n\n" +
+"Name: " + currentUser.name + "\n\n" +
 
 "Role: " + currentUser.role + "\n\n" +
 
@@ -315,774 +249,47 @@ text
 
 }
 
-// EARN MONEY
-function earnMoney(){
+// HISTORY
+function addHistory(user,text){
 
-alert(
-"Coming Soon 🚀"
-);
-
-}
-// SUBSCRIBE REQUEST STORAGE
-let subscribeRequests = JSON.parse(
-localStorage.getItem("subscribeRequests")
-) || [];
-
-// OPEN SUBSCRIBE PAGE
-function subscribeVerification(){
-
-// already approved
-let approvedUsers = JSON.parse(
-localStorage.getItem("subApproved")
-) || [];
-
-if(
-approvedUsers.includes(currentUser.name)
-){
-
-alert(
-"You already received subscribe reward ✅"
-);
-
-document.getElementById("subscribeBox")
-.classList.add("hidden");
-
-return;
-
-}
-
-// create page if not exists
-if(!document.getElementById("subscribePage")){
-
-let html = `
-
-<div id="subscribePage" class="container">
-
-<div class="card">
-
-<h2>Subscribe Verification ✅</h2>
-
-<p>
-Subscribe karo aur 50,000 coins pao 💰
-</p>
-
-<img
-src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg"
-style="
-width:200px;
-display:block;
-margin:auto;
-cursor:pointer;
-"
-onclick="openChannel()"
->
-
-<p id="loadingText"></p>
-
-<input
-type="file"
-id="subscribeProof"
-accept="image/*">
-
-<button onclick="submitSubscribeProof()">
-Submit Verification
-</button>
-
-<button onclick="closeSubscribePage()">
-Back
-</button>
-
-</div>
-
-</div>
-
-`;
-
-document.body.insertAdjacentHTML(
-"beforeend",
-html
-);
-
-}
-
-// open page
-document.getElementById("dashboard")
-.classList.add("hidden");
-
-document.getElementById("subscribePage")
-.classList.remove("hidden");
-
-}
-
-// OPEN CHANNEL
-function openChannel(){
-
-let loading =
-document.getElementById("loadingText");
-
-loading.innerText =
-"Loading YouTube...";
-
-setTimeout(()=>{
-
-window.open(
-"https://youtube.com/@playwithadmin?si=DkOEILCtPQgiMd_b",
-"_blank"
-);
-
-loading.innerText = "";
-
-},3000);
-
-}
-
-// SUBMIT PROOF
-function submitSubscribeProof(){
-
-let file =
-document.getElementById("subscribeProof").files[0];
-
-if(!file){
-
-alert("Upload screenshot first ❌");
-return;
-
-}
-
-// already pending check
-let already = subscribeRequests.find(
-x => x.name === currentUser.name
-);
-
-if(already){
-
-alert(
-"Application already submitted ⏳"
-);
-
-return;
-
-}
-
-let reader = new FileReader();
-
-reader.onload = function(e){
-
-subscribeRequests.push({
-
-name: currentUser.name,
-
-role: currentUser.role,
-
-coins: currentUser.coins,
-
-image: e.target.result,
-
-status: "pending"
-
-});
-
-localStorage.setItem(
-
-"subscribeRequests",
-
-JSON.stringify(subscribeRequests)
-
-);
-
-alert(
-"Your application submitted waiting for review ✅"
-);
-
-closeSubscribePage();
-
-};
-
-reader.readAsDataURL(file);
-
-}
-
-// CLOSE PAGE
-function closeSubscribePage(){
-
-document.getElementById("subscribePage")
-.classList.add("hidden");
-
-document.getElementById("dashboard")
-.classList.remove("hidden");
-
-}
-
-// OPEN NEW SUBSCRIBERS PAGE
-function openNewSubscriberPage(){
-
-if(
-currentUser.role !== "owner" &&
-currentUser.role !== "admin"
-){
-
-alert("Access Denied ❌");
-return;
-
-}
-
-let table =
-document.getElementById(
-"newSubscriberTable"
-);
-
-table.innerHTML = "";
-
-if(subscribeRequests.length === 0){
-
-table.innerHTML = `
-
-<tr>
-
-<td colspan="3"
-style="
-padding:20px;
-text-align:center;
-color:gray;
-">
-
-No Pending Requests 📭
-
-</td>
-
-</tr>
-
-`;
-
-}else{
-
-subscribeRequests.forEach((s,i)=>{
-
-table.innerHTML += `
-
-<tr
-style="
-background:#1a1a1a;
-">
-
-<td
-style="
-padding:12px;
-border-bottom:1px solid #333;
-">
-${i+1}
-</td>
-
-<td
-style="
-padding:12px;
-border-bottom:1px solid #333;
-">
-
-<button
-style="
-background:#00bfff;
-border:none;
-padding:8px 14px;
-border-radius:8px;
-font-weight:bold;
-"
-onclick="viewSubscriber(${i})">
-
-${s.name}
-
-</button>
-
-</td>
-
-<td
-style="
-padding:12px;
-border-bottom:1px solid #333;
-color:orange;
-font-weight:bold;
-">
-
-PENDING ⏳
-
-</td>
-
-</tr>
-
-`;
-
-});
-
-}
-
-document.getElementById("dashboard")
-.classList.add("hidden");
-
-document.getElementById("newSubscriberPage")
-.classList.remove("hidden");
-
-}
-
-
-// VIEW SUBSCRIBER
-function viewSubscriber(index){
-
-if(
-currentUser.role !== "owner" &&
-currentUser.role !== "admin"
-){
-
-alert("Security Error ❌");
-return;
-
-}
-
-let s = subscribeRequests[index];
-
-let win = window.open(
-"",
-"_blank",
-"width=500,height=700"
-);
-
-win.document.write(`
-
-<html>
-
-<head>
-
-<title>Subscriber Details</title>
-
-<style>
-
-body{
-background:#111;
-color:white;
-font-family:Arial;
-padding:20px;
-}
-
-.card{
-background:#1c1c1c;
-padding:20px;
-border-radius:15px;
-box-shadow:0 0 15px rgba(0,0,0,0.5);
-}
-
-h2{
-text-align:center;
-color:#00ffcc;
-}
-
-p{
-font-size:18px;
-margin:12px 0;
-}
-
-img{
-width:100%;
-border-radius:12px;
-margin-top:15px;
-border:2px solid #444;
-}
-
-button{
-width:100%;
-padding:14px;
-margin-top:20px;
-border:none;
-border-radius:10px;
-background:#00bfff;
-color:white;
-font-size:18px;
-font-weight:bold;
-cursor:pointer;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="card">
-
-<h2>Subscriber Details 📋</h2>
-
-<p><b>Name:</b> ${s.name}</p>
-
-<p><b>Role:</b> ${s.role}</p>
-
-<p><b>Coins:</b> ${s.coins}</p>
-
-<p><b>Status:</b> Pending ⏳</p>
-
-<img src="${s.image}">
-
-<button onclick="
-window.opener.approveSubscriber(${index});
-this.innerHTML='APPROVED ✅';
-this.disabled=true;
-">
-
-Approve Subscriber ✅
-
-</button>
-
-</div>
-
-</body>
-
-</html>
-
-`);
-
-}
-
-
-// CLOSE PAGE
-function closeNewSubscriberPage(){
-
-document.getElementById(
-"newSubscriberPage"
-).classList.add("hidden");
-
-document.getElementById(
-"dashboard"
-).classList.remove("hidden");
-
-}
-// VIEW SUBSCRIBER
-function viewSubscriber(index){
-
-if(
-currentUser.role !== "owner" &&
-currentUser.role !== "admin"
-){
-alert("Access Denied ❌");
-return;
-}
-
-let s = subscribeRequests[index];
-
-let approve =
-s.status || "Pending ⏳";
-
-let win = window.open(
-"",
-"_blank",
-"width=450,height=750"
-);
-
-win.document.write(`
-
-<html>
-
-<head>
-
-<title>Subscriber Details</title>
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<style>
-
-body{
-margin:0;
-padding:20px;
-background:#0f0f0f;
-font-family:Arial;
-color:white;
-display:flex;
-justify-content:center;
-align-items:flex-start;
-min-height:100vh;
-}
-
-.card{
-width:100%;
-max-width:420px;
-background:#1c1c1c;
-padding:20px;
-border-radius:18px;
-box-shadow:0 0 20px rgba(0,0,0,0.6);
-}
-
-h2{
-text-align:center;
-margin-bottom:25px;
-color:#00e5ff;
-font-size:28px;
-}
-
-.info{
-background:#2a2a2a;
-padding:14px;
-border-radius:10px;
-margin-bottom:12px;
-font-size:17px;
-}
-
-.label{
-color:#00e5ff;
-font-weight:bold;
-}
-
-.status{
-color:orange;
-font-weight:bold;
-}
-
-img{
-width:100%;
-border-radius:15px;
-margin-top:20px;
-border:2px solid #444;
-}
-
-button{
-width:100%;
-padding:15px;
-margin-top:25px;
-border:none;
-border-radius:12px;
-background:#00bfff;
-color:white;
-font-size:18px;
-font-weight:bold;
-cursor:pointer;
-transition:0.3s;
-}
-
-button:hover{
-opacity:0.8;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="card">
-
-<h2>Subscriber Details 📋</h2>
-
-<div class="info">
-<span class="label">Name:</span>
-${s.name}
-</div>
-
-<div class="info">
-<span class="label">Role:</span>
-${s.role}
-</div>
-
-<div class="info">
-<span class="label">Coins:</span>
-${s.coins}
-</div>
-
-<div class="info">
-<span class="label">Status:</span>
-<span class="status">
-${approve}
-</span>
-</div>
-
-<img src="${s.image}">
-
-<button onclick="
-window.opener.approveSubscriber(${index});
-this.innerHTML='APPROVED ✅';
-this.disabled=true;
-this.style.background='green';
-">
-
-Approve Subscriber ✅
-
-</button>
-
-</div>
-
-</body>
-
-</html>
-
-`);
-
-}
-
-// APPROVE
-function approveSubscriber(index){
-
-let s = subscribeRequests[index];
-
-let user = users.find(
-x => x.name === s.name
-);
-
-if(!user){
-
-alert("User not found ❌");
-return;
-
-}
-
-// add reward
-user.coins += 50000;
-
-// save approved
-let approvedUsers = JSON.parse(
-localStorage.getItem("subApproved")
-) || [];
-
-if(
-!approvedUsers.includes(user.name)
-){
-
-approvedUsers.push(user.name);
-
-localStorage.setItem(
-"subApproved",
-JSON.stringify(approvedUsers)
-);
-
-}
-
-// history
 let history = JSON.parse(
 localStorage.getItem(
-"history_"+user.name
+"history_"+user
 )
 ) || [];
 
-history.push(
-"You earned 50,000 coins by subscribe"
-);
+history.push(text);
 
 localStorage.setItem(
-"history_"+user.name,
+"history_"+user,
 JSON.stringify(history)
 );
 
-// remove request
-subscribeRequests.splice(index,1);
-
-localStorage.setItem(
-"subscribeRequests",
-JSON.stringify(subscribeRequests)
-);
-
-// save users
-save();
-
-alert(
-user.name +
-" got 50,000 coins ✅"
-);
-
 }
 
-// CLOSE PAGE
-function closeNewSubscriberPage(){
+// EARN PAGE
+function openEarnPage(){
 
-document.getElementById("newSubscriberPage")
-.classList.add("hidden");
-
-document.getElementById("dashboard")
-.classList.remove("hidden");
-
-}
-// VIDEO STORAGE
-let videos = JSON.parse(
-localStorage.getItem("videos")
-) || [];
-
-// EARN MONEY PAGE OPEN
-function earnMoney(){
-
-// create page if not exists
-if(!document.getElementById("earnPage")){
-
-let earnHTML = `
-
-<div id="earnPage" class="container">
-
-<div class="card">
-
-<h2>Earn Money 💰</h2>
-
-<div id="uploadBox" class="hidden">
-
-<input
-id="videoLink"
-placeholder="YouTube Video Link">
-
-<input
-id="videoReward"
-type="number"
-placeholder="Coins Reward">
-
-<button onclick="uploadVideo()">
-Upload Video 📤
-</button>
-
-</div>
-
-<div id="videoArea"></div>
-
-<button onclick="closeEarnPage()">
-Back
-</button>
-
-</div>
-
-</div>
-
-`;
-
-document.body.insertAdjacentHTML(
-"beforeend",
-earnHTML
-);
-
-}
-
-// show page
-document.getElementById("dashboard")
-.classList.add("hidden");
+hideAllPages();
 
 document.getElementById("earnPage")
 .classList.remove("hidden");
 
-// owner upload access
+showVideos();
+
 if(
-currentUser.role === "owner"
+currentUser.role==="owner"
 ){
 
 document.getElementById("uploadBox")
-.classList.remove("hidden");
+.style.display = "block";
 
 }else{
 
 document.getElementById("uploadBox")
-.classList.add("hidden");
+.style.display = "none";
 
 }
-
-showVideos();
-
-}
-
-// CLOSE PAGE
-function closeEarnPage(){
-
-document.getElementById("earnPage")
-.classList.add("hidden");
-
-document.getElementById("dashboard")
-.classList.remove("hidden");
 
 }
 
@@ -1106,11 +313,9 @@ return;
 
 videos.push({
 
-id: Date.now(),
-
-link: link,
-
-reward: reward
+id:Date.now(),
+link:link,
+reward:reward
 
 });
 
@@ -1119,10 +324,28 @@ localStorage.setItem(
 JSON.stringify(videos)
 );
 
-alert("Video Uploaded ✅");
+// DISCORD WEBHOOK
+fetch(
+"https://discord.com/api/webhooks/1503774481582395592/LaQ3H8clAQcjLsWoJAEttASiwbOcyFYSNdyum1YsbQ7S3E-z_8rsfMvF8Ja835N-73by",
+{
 
-document.getElementById("videoLink").value = "";
-document.getElementById("videoReward").value = "";
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+content:
+"🎥 NEW VIDEO UPLOADED\n\n" +
+link
+
+})
+
+});
+
+alert("Video uploaded ✅");
 
 showVideos();
 
@@ -1136,26 +359,18 @@ document.getElementById("videoArea");
 
 area.innerHTML = "";
 
-// no video
-if(videos.length === 0){
+if(videos.length===0){
 
 area.innerHTML = `
-
-<div class="card">
-
 <h3>
-Reward ke liye abhi new video nahi hai 📭
+No Videos Available 📭
 </h3>
-
-</div>
-
 `;
 
 return;
 
 }
 
-// show all videos
 videos.forEach(v=>{
 
 area.innerHTML += `
@@ -1163,7 +378,8 @@ area.innerHTML += `
 <div class="card">
 
 <h3>
-Reward: ${v.reward} Coins
+Reward:
+${v.reward} Coins
 </h3>
 
 <button
@@ -1172,7 +388,9 @@ onclick="watchVideo(
 ${v.reward},
 ${v.id}
 )">
-Watch New Video ▶
+
+Watch Video ▶
+
 </button>
 
 </div>
@@ -1184,75 +402,43 @@ Watch New Video ▶
 }
 
 // WATCH VIDEO
-function watchVideo(
-link,
-reward,
-id
-){
+function watchVideo(link,reward,id){
 
 let claimed = JSON.parse(
-
 localStorage.getItem(
 "claimed_"+currentUser.name
 )
-
 ) || [];
 
-// already claimed
 if(claimed.includes(id)){
 
-alert(
-"Reward already claimed ❌"
-);
-
+alert("Already claimed ❌");
 return;
 
 }
 
-// open youtube
 window.open(
 link,
 "_blank"
 );
 
-// add coins
-currentUser.coins += reward;
-
-// update original users array
-let user = users.find(
-x => x.name === currentUser.name
-);
-
-if(user){
-
-user.coins = currentUser.coins;
-
-}
-
-// save
+let user = users.find(x => x.name === currentUser.name);
+user.coins += reward;
+currentUser.coins = user.coins;
 save();
 
-// claim save
+save();
+
 claimed.push(id);
 
 localStorage.setItem(
-
 "claimed_"+currentUser.name,
-
 JSON.stringify(claimed)
-
 );
 
-// history
-let history = JSON.parse(
+addHistory(
 
-localStorage.getItem(
-"history_"+currentUser.name
-)
-
-) || [];
-
-history.push(
+currentUser.name,
 
 "You earned " +
 reward +
@@ -1260,17 +446,8 @@ reward +
 
 );
 
-localStorage.setItem(
-
-"history_"+currentUser.name,
-
-JSON.stringify(history)
-
-);
-
-// remove watched video
 videos = videos.filter(
-x => x.id !== id
+x=>x.id!==id
 );
 
 localStorage.setItem(
@@ -1278,7 +455,6 @@ localStorage.setItem(
 JSON.stringify(videos)
 );
 
-// update UI
 updateUI();
 
 alert(
@@ -1291,30 +467,533 @@ showVideos();
 
 }
 
-// LOGOUT
-function logout(){
+// OPEN SUBSCRIBE
+function openSubscribePage(){
 
-currentUser = null;
+hideAllPages();
 
-localStorage.removeItem(
-"currentUser"
-);
-
-document.getElementById("dashboard")
-.classList.add("hidden");
-
-document.getElementById("loginPage")
+document.getElementById("subscribePage")
 .classList.remove("hidden");
 
-document.getElementById("userTableBox")
-.classList.add("hidden");
+}
 
-document.getElementById("username").value = "";
+ // SUBMIT VERIFICATION
+function submitVerification(){
 
-document.getElementById("password").value = "";
-alert("Logged out 🚪");
+let name =
+document.getElementById("gameName").value;
+
+let number =
+document.getElementById("gameNumber").value;
+
+let file =
+document.getElementById("proofImage").files[0];
+
+if(!name || !number || !file){
+
+alert("Fill all fields");
+return;
 
 }
+
+// CHECK EXISTING REQUEST
+let alreadyApplied =
+subscribeRequests.find(
+x => x.user === currentUser.name
+);
+
+if(alreadyApplied){
+
+alert(
+"You already submitted verification ❌"
+);
+
+return;
+
+}
+
+// CHECK APPROVED
+let approvedUsers = JSON.parse(
+localStorage.getItem("subApproved")
+) || [];
+
+if(
+approvedUsers.includes(currentUser.name)
+){
+
+alert(
+"You are already approved ✅"
+);
+
+return;
+
+}
+
+let reader = new FileReader();
+
+reader.onload = function(e){
+
+subscribeRequests.push({
+
+user:currentUser.name,
+game:name,
+number:number,
+image:e.target.result
+
+});
+
+localStorage.setItem(
+
+"subscribeRequests",
+
+JSON.stringify(subscribeRequests)
+
+);
+
+// DISCORD WEBHOOK
+fetch(
+"https://discord.com/api/webhooks/1503773951325638716/zeBKmrRqWRfaSZBFC07__bZ_hqOsnFqSgyd_zigjklRT4ebCsmq8jhGP5ZbYrcoD6oNX",
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+content:
+"🆕 NEW SUBSCRIBER REQUEST\n\n" +
+"User: " + currentUser.name + "\n" +
+"Game Name: " + name + "\n" +
+"Number: " + number
+
+})
+
+});
+
+alert(
+"Application Submitted ✅"
+);
+
+backDashboard();
+
+};
+
+reader.readAsDataURL(file);
+
+}
+// NEW SUBSCRIBERS PAGE
+function openNewSubscriberPage(){
+
+hideAllPages();
+
+document.getElementById("newSubscriberPage")
+.classList.remove("hidden");
+
+let box =
+document.getElementById("subscriberList");
+
+box.innerHTML = "";
+
+subscribeRequests.forEach((s,i)=>{
+
+box.innerHTML += `
+
+<div class="card">
+
+<h3>
+${s.user}
+</h3>
+
+<p>
+Game:
+${s.game}
+</p>
+
+<p>
+Number:
+${s.number}
+</p>
+
+<img
+src="${s.image}"
+style="
+width:100%;
+border-radius:10px;
+">
+
+<button
+onclick="approveSubscriber(${i})">
+
+Approve ✅
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+// APPROVE SUBSCRIBER
+function approveSubscriber(index){
+
+let s = subscribeRequests[index];
+
+let user = users.find(
+x=>x.name===s.user
+);
+
+if(!user) return;
+
+user.coins += 50000;
+
+save();
+
+let approvedUsers = JSON.parse(
+localStorage.getItem("subApproved")
+) || [];
+
+approvedUsers.push(user.name);
+
+localStorage.setItem(
+"subApproved",
+JSON.stringify(approvedUsers)
+);
+
+addHistory(
+
+user.name,
+
+"You earned 50,000 coins by subscribe"
+
+);
+
+subscribeRequests.splice(index,1);
+
+localStorage.setItem(
+
+"subscribeRequests",
+
+JSON.stringify(subscribeRequests)
+
+);
+
+alert(
+"Approved Successfully ✅"
+);
+
+openNewSubscriberPage();
+
+}
+
+// MEMBERS PAGE
+function openMembersPage(){
+
+hideAllPages();
+
+document.getElementById("membersPage")
+.classList.remove("hidden");
+
+let table =
+document.getElementById("membersTable");
+
+table.innerHTML = "";
+
+users.forEach((u,i)=>{
+
+table.innerHTML += `
+
+<tr>
+
+<td>${i+1}</td>
+<td>${u.name}</td>
+<td>${u.role}</td>
+<td>${u.coins}</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+// WITHDRAW PAGE
+function openWithdrawPage(){
+
+hideAllPages();
+
+document.getElementById("withdrawPage")
+.classList.remove("hidden");
+
+}
+
+// SUBMIT WITHDRAW
+function submitWithdraw(){
+
+let number = document.getElementById("withdrawNumber").value;
+let amount = Number(document.getElementById("withdrawAmount").value);
+
+if(!number || !amount){
+alert("Fill all fields");
+return;
+}
+
+// ❌ ONE PENDING REQUEST CHECK
+let existing = withdrawRequests.find(
+x => x.user === currentUser.name && x.status !== "Completed"
+);
+
+if(existing){
+alert("⚠ You already have a pending withdraw request");
+return;
+}
+
+// USER CHECK
+let user = users.find(x => x.name === currentUser.name);
+
+if(user.coins < amount){
+alert("Not enough coins ❌");
+return;
+}
+
+// CREATE REQUEST
+withdrawRequests.push({
+user: currentUser.name,
+number: number,
+amount: amount,
+status: "Waiting",
+completed: false
+});
+
+localStorage.setItem("withdrawRequests", JSON.stringify(withdrawRequests));
+
+// 🔥 DISCORD WEBHOOK (URL ADDED)
+fetch("https://discord.com/api/webhooks/1503774858146742533/cR1OERc6wVRpu0Wy708kRphgmdcssuS_9QDuUHrSTSaK3wJhGDHMBjNl0DdX4eOGc2ey", {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+content:
+"💸 NEW WITHDRAW REQUEST\n\n" +
+"User: " + currentUser.name + "\n" +
+"Number: " + number + "\n" +
+"Amount: " + amount + " coins 💰\n" +
+"Status: Waiting ⏳"
+})
+});
+
+alert("Withdraw Request Submitted ✅");
+backDashboard();
+}
+ // OPEN WITHDRAW REQUESTS
+function openWithdrawRequests(){
+
+hideAllPages();
+
+document.getElementById("withdrawRequestPage")
+.classList.remove("hidden");
+
+let table =
+document.getElementById("withdrawTable");
+
+table.innerHTML = "";
+
+withdrawRequests.forEach((w,i)=>{
+
+let locked =
+w.status === "Completed" ? "disabled" : "";
+
+table.innerHTML += `
+<tr>
+
+<td>${w.user}</td>
+<td>${w.number}</td>
+<td>${w.amount}</td>
+
+<td>
+<select ${locked}
+onchange="changeWithdrawStatus(${i}, this.value)">
+
+<option selected>${w.status}</option>
+<option>Waiting</option>
+<option>In Progress</option>
+<option>Completed</option>
+
+</select>
+</td>
+
+</tr>
+`;
+});
+}
+// CHANGE STATUS
+function changeWithdrawStatus(index, status){
+
+let w = withdrawRequests[index];
+
+if(!w){
+alert("Request not found ❌");
+return;
+}
+
+if(w.completed){
+alert("Already completed 🔒");
+return;
+}
+
+w.status = status;
+
+// SAVE FIRST (IMPORTANT FIX)
+localStorage.setItem("withdrawRequests", JSON.stringify(withdrawRequests));
+
+if(status === "Completed"){
+
+let user = users.find(x => x.name === w.user);
+
+if(!user){
+alert("User not found ❌");
+return;
+}
+
+// DOUBLE SAFETY
+if(!w.completed){
+
+w.completed = true;
+
+user.coins -= Number(w.amount);
+save();
+
+addHistory(
+user.name,
+"Withdraw completed: " + w.amount
+);
+
+// 🔥 DISCORD WEBHOOK (FIXED + SAFE)
+fetch("https://discord.com/api/webhooks/1503774858146742533/cR1OERc6wVRpu0Wy708kRphgmdcssuS_9QDuUHrSTSaK3wJhGDHMBjNl0DdX4eOGc2ey", {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+content:
+"💸 WITHDRAW COMPLETED\n\n" +
+w.amount + " coins have been successfully deposited in " +
+w.user + " game account by " +
+currentUser.name +
+" (admin/owner) <@&1503714193214406827> ✅"
+})
+})
+.then(res => console.log("Webhook sent"))
+.catch(err => console.error("Webhook failed:", err));
+
+}
+
+}
+
+alert("Status Updated ✅");
+openWithdrawRequests();
+}
+// MAKE ADMIN
+function makeAdmin(){
+
+// ONLY OWNER
+if(currentUser.role !== "owner"){
+
+alert(
+"Access Denied ❌ Only owner"
+);
+
+return;
+
+}
+
+let target =
+prompt("Username?");
+
+let user = users.find(
+x => x.name === target
+);
+
+if(!user){
+
+alert("User not found ❌");
+return;
+
+}
+
+user.role = "admin";
+
+save();
+
+alert(
+target +
+" is now ADMIN 👑"
+);
+
+}
+ // ADD COINS
+function addCoins(){
+
+// ONLY OWNER
+if(currentUser.role !== "owner"){
+
+alert(
+"Access Denied ❌ Only owner"
+);
+
+return;
+
+}
+
+let target =
+prompt("Username?");
+
+let amount =
+parseInt(
+prompt("Coins?")
+);
+
+let user = users.find(
+x => x.name === target
+);
+
+if(!user){
+
+alert("User not found ❌");
+return;
+
+}
+
+user.coins += amount;
+
+save();
+
+addHistory(
+
+user.name,
+
+"You received " +
+amount +
+" coins by owner"
+
+);
+
+alert(
+amount +
+" coins added to " +
+user.name +
+" ✅"
+);
+
+}
+
 
 // AUTO LOGIN
 window.onload = function(){
@@ -1325,7 +1004,7 @@ localStorage.getItem("currentUser");
 if(saved){
 
 let user = users.find(
-x => x.name===saved
+x=>x.name===saved
 );
 
 if(user){
@@ -1338,4 +1017,4 @@ showDashboard();
 
 }
 
-  }
+}
