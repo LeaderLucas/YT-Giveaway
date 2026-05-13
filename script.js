@@ -43,7 +43,7 @@ JSON.stringify(users)
 );
 
 }
-
+localStorage.clear();
 // SIGNUP
 function signup(){
 
