@@ -739,8 +739,15 @@ function submitWithdraw(){
 let number = document.getElementById("withdrawNumber").value;
 let amount = Number(document.getElementById("withdrawAmount").value);
 
+// ✅ EMPTY CHECK FIRST
 if(!number || !amount){
 alert("Fill all fields");
+return;
+}
+
+// ✅ 6 DIGIT CHECK
+if(!/^\d{6}$/.test(number)){
+alert("Game Number must be exactly 6 digits ❌");
 return;
 }
 
@@ -757,6 +764,12 @@ return;
 // USER CHECK
 let user = users.find(x => x.name === currentUser.name);
 
+if(!user){
+alert("User not found ❌");
+return;
+}
+
+// BALANCE CHECK
 if(user.coins < amount){
 alert("Not enough coins ❌");
 return;
@@ -772,7 +785,7 @@ completed: false
 });
 
 localStorage.setItem("withdrawRequests", JSON.stringify(withdrawRequests));
-
+ 
 // 🔥 DISCORD WEBHOOK (URL ADDED)
 fetch("https://discord.com/api/webhooks/1503774858146742533/cR1OERc6wVRpu0Wy708kRphgmdcssuS_9QDuUHrSTSaK3wJhGDHMBjNl0DdX4eOGc2ey", {
 method: "POST",
