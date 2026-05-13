@@ -196,8 +196,14 @@ Coins: <span id="coins">0</span>
 <h1>Withdraw Request 💸</h1>
 
 <input type="text" id="withdrawNumber" placeholder="Game Number">
-<input type="number" id="withdrawAmount" placeholder="Withdraw Amount">
+<select id="withdrawAmount">
 
+<option value="30000">30000 Coins</option>
+<option value="50000">50000 Coins</option>
+<option value="75000">75000 Coins</option>
+<option value="100000">100000 Coins</option>
+
+</select>
 <button onclick="submitWithdraw()">Submit Withdraw</button>
 <button onclick="backDashboard()">Close</button>
 
